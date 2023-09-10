@@ -1,6 +1,4 @@
-# X
-
-#### A Crystal interface to the X API.
+# A [Crystal](https://crystal-lang.org) interface to the [X API](https://developer.x.com)
 
 ## Follow
 
@@ -21,6 +19,8 @@ Then run:
     shards install
 
 ## Usage
+
+First, obtain X credentails from <https://developer.x.com>.
 
 ```crystal
 require "x"
