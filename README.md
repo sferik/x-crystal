@@ -2,6 +2,10 @@
 
 #### A Crystal interface to the X API.
 
+## Follow
+
+For updates and announcements about this library, follow [its creator on X](https://x.com/sferik).
+
 ## Installation
 
 Add the dependency to your `shard.yml`:
