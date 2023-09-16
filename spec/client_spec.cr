@@ -1,45 +1,73 @@
 require "./spec_helper"
 
-module X
-  describe Client do
-    client = Client.new(api_key: "api_key", api_key_secret: "api_key_secret", access_token: "access_token", access_token_secret: "access_token_secret")
-
-    describe "#get" do
-      it "sends a GET request" do
-        endpoint = "test_endpoint"
-        stub_request(:get, endpoint, 200)
-        response = client.get(endpoint)
-        response.should eq({} of String => String)
-      end
+describe X::Client do
+  describe "Initialization" do
+    it "sets up a default client" do
+      client = client()
+      client.should_not be_nil
     end
 
-    describe "#post" do
-      it "sends a POST request with body" do
-        endpoint = "test_endpoint"
-        body = "{\"data\":\"test\"}"
-        stub_request(:post, endpoint, 200)
-        response = client.post(endpoint, body)
-        response.should eq({} of String => String)
-      end
+    it "sets up a client with a bearer token" do
+      client = X::Client.new(bearer_token: "TEST_BEARER_TOKEN")
+      client.should_not be_nil
+    end
+  end
+
+  {% for http_method in X::RequestBuilder::HTTP_METHODS %}
+    it "test_{{http_method.downcase.id}}_oauth_request_success" do
+      client = client()
+      WebMock.stub({{http_method.downcase}}, "https://api.twitter.com/2/tweets").
+        to_return(status: 200, body: "{}", headers: {"Content-Type" => "application/json"})
+      response = client.{{http_method.downcase.id}}("tweets")
+      response.should eq({} of String => String)
     end
 
-    describe "#put" do
-      it "sends a PUT request with body" do
-        endpoint = "test_endpoint"
-        body = "{\"data\":\"test\"}"
-        stub_request(:put, endpoint, 200)
-        response = client.put(endpoint, body)
-        response.should eq({} of String => String)
-      end
+    it "test_{{http_method.downcase.id}}_bearer_token_request_success" do
+      client = X::Client.new(bearer_token: "TEST_BEARER_TOKEN")
+      WebMock.stub({{http_method.downcase}}, "https://api.twitter.com/2/tweets").
+        to_return(status: 200, body: "{}", headers: {"Content-Type" => "application/json"})
+      response = client.{{http_method.downcase.id}}("tweets")
+      response.should eq({} of String => String)
     end
+  {% end %}
 
-    describe "#delete" do
-      it "sends a DELETE request" do
-        endpoint = "test_endpoint"
-        stub_request(:delete, endpoint, 200)
-        response = client.delete(endpoint)
-        response.should eq({} of String => String)
-      end
-    end
+  it "checks default base uri" do
+    client = client()
+    client.base_uri.should eq(X::Connection::DEFAULT_BASE_URL)
+  end
+
+  it "allows setting base uri" do
+    client = client()
+    client.base_uri = URI.parse("https://example.com")
+    client.base_uri.to_s.should eq("https://example.com")
+  end
+
+  it "checks default user agent" do
+    client = client()
+    client.user_agent.should eq(X::RequestBuilder::DEFAULT_USER_AGENT)
+  end
+
+  it "allows setting user agent" do
+    client = client()
+    client.user_agent = "Custom User Agent"
+    client.user_agent.should eq("Custom User Agent")
+  end
+
+  it "checks default timeouts" do
+    client = client()
+    client.connect_timeout.should eq(X::Connection::DEFAULT_CONNECT_TIMEOUT)
+    client.read_timeout.should eq(X::Connection::DEFAULT_READ_TIMEOUT)
+    client.write_timeout.should eq(X::Connection::DEFAULT_WRITE_TIMEOUT)
+  end
+
+  it "allows setting timeouts" do
+    client = client()
+    client.connect_timeout = 10.seconds
+    client.read_timeout = 10.seconds
+    client.write_timeout = 10.seconds
+
+    client.connect_timeout.should eq(10.seconds)
+    client.read_timeout.should eq(10.seconds)
+    client.write_timeout.should eq(10.seconds)
   end
 end
