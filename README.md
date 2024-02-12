@@ -20,7 +20,7 @@ Then run:
 
 ## Usage
 
-First, obtain X credentails from <https://developer.x.com>.
+First, obtain X credentials from <https://developer.x.com>.
 
 ```crystal
 require "x"
